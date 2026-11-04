@@ -17,6 +17,12 @@ jobs:
           curl -sL -o apktool.jar https://github.com/iBotPeaches/Apktool/releases/download/v2.9.3/apktool_2.9.3.jar
           java -jar apktool.jar b base_src -o unsigned.apk
           BT=$(ls -d $ANDROID_HOME/build-tools/* | sort -V | tail -1)
+          AJ=$(ls -d $ANDROID_HOME/platforms/android-[0-9][0-9] | sort -V | tail -1)/android.jar
+          mkdir cls dexout
+          javac --release 8 -cp "$AJ" -d cls extra/gm/*.java
+          $BT/d8 --min-api 21 --lib "$AJ" --output dexout $(find cls -name '*.class')
+          mv dexout/classes.dex dexout/classes2.dex
+          (cd dexout && zip -q ../unsigned.apk classes2.dex)
           $BT/zipalign -f -p 4 unsigned.apk aligned.apk
           keytool -genkeypair -keystore dbg.jks -alias dbg -keyalg RSA -keysize 2048 -validity 10000 -storepass android -keypass android -dname "CN=Debug"
           $BT/apksigner sign --ks dbg.jks --ks-pass pass:android --key-pass pass:android --out gtandroid-patched.apk aligned.apk
