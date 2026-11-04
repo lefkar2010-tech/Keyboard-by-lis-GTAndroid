@@ -24,10 +24,9 @@ jobs:
           mv dexout/classes.dex dexout/classes2.dex
           (cd dexout && zip -q ../unsigned.apk classes2.dex)
           $BT/zipalign -f -p 4 unsigned.apk aligned.apk
-          keytool -genkeypair -keystore dbg.jks -alias dbg -keyalg RSA -keysize 2048 -validity 10000 -storepass android -keypass android -dname "CN=Debug"
-          $BT/apksigner sign --ks dbg.jks --ks-pass pass:android --key-pass pass:android --out gtandroid-patched.apk aligned.apk
+          $BT/apksigner sign --ks gm-release.jks --ks-pass pass:gmtools123 --key-pass pass:gmtools123 --out GrandMobileTools.apk aligned.apk
       - uses: softprops/action-gh-release@v2
         with:
           tag_name: build-${{ github.run_number }}
           name: "Build ${{ github.run_number }}"
-          files: gtandroid-patched.apk
+          files: GrandMobileTools.apk
